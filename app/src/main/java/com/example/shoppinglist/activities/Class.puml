@@ -1,0 +1,199 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+
+SettingsActivity -* SettingsFragment
+SettingsActivity --> MainActivity
+MainActivity --* NoteFragment
+MainActivity --* ShopListNamesFragment
+ShopListNamesFragment .|> ShopListNamesListener
+ShopListNamesFragment ..> MainViewModel
+ShopListNamesFragment .> ShopListNameAdapter
+ShopListNameAdapter .> ShopListNamesListener
+NoteFragment .|> NoteListener
+NoteFragment ..> MainViewModel
+NoteFragment ..> NoteAdapter
+NoteAdapter .> NoteListener
+ShopListItemAdapter .> ShopListListener
+MyNotificationReceiver ..> ShopListActivity
+NewNoteActivity ..> MainViewModel
+NewNoteActivity --> NoteFragment
+ShopListActivity .> ShopListItemAdapter
+ShopListActivity .|> ShopListListener
+ShopListActivity --> ShopListNamesFragment
+ShopListActivity ..> MainViewModel
+BaseFragment <|-- NoteFragment
+BaseFragment <|-- ShopListNamesFragment
+
+
+class MyNotificationReceiver{
+- createNotificationChannel(context: Context?)
+- createPendingIntent(context: Context?): PendingIntent?
+}
+
+class MainActivity  {
+
+    - defPreferences: SharedPreferences
+    - currentMenuItemId = R.id.shop_list
+    - currentTheme = ""
+
+    - setBottomNavListener()
+    - getSelectedTheme(): Int
+}
+
+abstract class BaseFragment {
+    + onClickNew()
+}
+
+class NoteFragment {
+    - editLauncher: ActivityResultLauncher<Intent>
+    - adapter: NoteAdapter
+    - defPreferences: SharedPreferences
+    - mainViewModel: MainViewModel by activityViewModels
+
+    + onClickNew()
+    - initRcView()
+    - getLayoutManager(): String
+    - observer()
+    - onEditResult()
+    + deleteItem(id: Int)
+    + onClickItem(note: NoteItem)
+    - deleteAllTasks()
+}
+
+class ShopListItemAdapter{
++ setItemData(shopListItem: ShopListItem, listener: Listener)
++ setLibraryData(shopListItem: ShopListItem, listener: Listener)
+- setPaintFlagAndColor(binding: ShopListItemBinding)
+- infoVisibility(shopListItem: ShopListItem): Int
+}
+
+class ShopListActivity {
+    - shopListNameItem: ShopListNameItem?
+    - defPreferences: SharedPreferences
+    - adapter: ShopListItemAdapter?
+    - alarmManager: AlarmManager
+    - mainViewModel: MainViewModel by viewModels
+
+    - init()
+    - checkPrefab(): ShopListNameItem?
+    - navigateToMainActivity()
+    - showDateTimePickerDialog()
+    - scheduleAlarm(context: Context, selectedDate: Calendar)
+    - cancelAlarm(context: Context)
+    - updateDateTime()
+    - textWatcher(): TextWatcher
+    - addNewShopItem(name: String)
+    - listItemObserver()
+    - libraryItemObserver()
+    - initRcView()
+    - expandActionView(): MenuItem.OnActionExpandListener
+    + onClickItem(shopListItem: ShopListItem, state: Int)
+    - editListItem(item: ShopListItem)
+    - editLibraryItem(item: ShopListItem)
+    - saveItemCount()
+    - getSelectedTheme(): Int
+}
+
+    interface ShopListListener {
+        fun onClickItem(shopListItem: ShopListItem, state: Int)
+    }
+
+class NewNoteActivity {
+    - note: NoteItem?
+    - defPreferences: SharedPreferences
+    - mainViewModel: MainViewModel by viewModels
+
+    - onClickColorPicker()
+    - init()
+    - getNote()
+    - fillNote()
+    - setBoldForSelectedText()
+    - setColorForSelectedText(colorId: Int)
+    - setMainResult()
+    - updateNote(): NoteItem?
+    - createNewNote(): NoteItem
+    - actionBarSettings()
+    - openColorPicker()
+    - closeColorPicker()
+    - setTextSize()
+    - getSelectedTheme(): Int
+}
+
+class MainViewModel{
+    - preferencesManager: PreferencesManager
+    + curFrag: Int
+    + searchQuery: MutableStateFlow<String>
+    - preferencesFlow: Flow<FilterPreferences>
+    - dao: Dao
+    - tasksFlow: Flow<Triple<String, SortOrder, Boolean>>
+    + tasks: LiveData<List<Serializable>>
+    + libraryItems: MutableLiveData<List<LibraryItem>>
+    + allNotes: LiveData<List<NoteItem>>
+    + allItemShopListNames: LiveData<List<ShopListNameItem>>
+
+    + getAllLibraryItems(name: String)
+    + getAllItemsFromList(listId: Int): LiveData<List<ShopListItem>>
+    + insertNote(note: NoteItem)
+    + insertShopListName(listName: ShopListNameItem)
+    + insertShopItem(shopListItem: ShopListItem)
+    + updateNote(note: NoteItem)
+    + updateListItem(item: ShopListItem)
+    + updateListName(shopListNameItem: ShopListNameItem)
+    + updateLibraryItem(item: LibraryItem)
+    + deleteNote(id: Int)
+    + deleteAllNotes()
+    + deleteLibraryItem(id: Int)
+    + deleteShopList(id: Int, deleteList: Boolean)
+    + deleteAllShopListName()
+    - isLibraryItemExists(name: String): Boolean
+    + onSortOrderSelected(sortOrder: SortOrder, curFrag: Int)
+    + updateSearchInNotes(newValue: Boolean)
+}
+
+interface NoteListener{
+     fun deleteItem(id: Int)
+     fun onClickItem(note: NoteItem)
+}
+
+class ShopListNamesFragment {
+    - adapter: ShopListNameAdapter
+    - mainViewModel: MainViewModel by activityViewModels
+
+    + onClickNew()
+    - initRcView()
+    - observer()
+    + deleteItem(id: Int)
+    + editItem(shopListNameItem: ShopListNameItem)
+    + onClickItem(shopListNameItem: ShopListNameItem)
+    - deleteAllTasks()
+}
+
+class ShopListNameAdapter {
+    + setData(shopListNameItem: ShopListNameItem, listener: ShopListNamesListener)
+    - getProgressColorState(item: ShopListNameItem, context: Context): Int
+}
+
+class NoteAdapter{
++ setData(note: NoteItem, listener: Listener, defPreferences: SharedPreferences)
+}
+
+    interface ShopListNamesListener{
+        fun deleteItem(id: Int)
+        fun editItem(shopListNameItem: ShopListNameItem)
+        fun onClickItem(shopListNameItem: ShopListNameItem)
+    }
+
+class SettingsActivity {
+    - defPreferences: SharedPreferences
+
+    + getSelectedTheme(): Int
+}
+
+class SettingsFragment {
+    + onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?)
+    - applyTheme(themeName: String)
+}
+
+@enduml

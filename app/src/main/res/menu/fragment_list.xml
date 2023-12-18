@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- All our menu/action items -->
+
+    <item
+        android:id="@+id/todo_search"
+        android:title="Search"
+        android:icon="@drawable/ic_todo_search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always|collapseActionView" />
+
+    <!-- Sub-menu for our Sort menu_item -->
+
+    <item
+        android:title= "Sort"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_todo_sort">
+
+        <menu>
+            <item
+                android:id="@+id/sort_by_name"
+                android:title="Sort by name" />
+
+            <item
+                android:id="@+id/sort_by_date"
+                android:title="Sort by date created"/>
+
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/del_all_tasks"
+        android:title="Delete all tasks"
+        app:showAsAction="never" />
+
+</menu>

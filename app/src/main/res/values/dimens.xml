@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="item_note_margin">-8dp</dimen>
+    <dimen name="left_right_margin_item_note">-2.5dp</dimen>
+</resources>
